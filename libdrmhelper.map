@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+#
+# Copyright (C) 2020  Alexey Gladkov <gladkov.alexey@gmail.com>
+#
+
+DRMHELPER_1.1 {
+  global:
+    drmhelper_open;
+    drmhelper_have_permissions;
+    drmhelper_set_master;
+    drmhelper_drop_master;
+
+  local:
+    _*;
+};
