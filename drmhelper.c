@@ -160,7 +160,14 @@ end:
 
 int main(void)
 {
-       conn = STDIN_FILENO;
+	conn = STDIN_FILENO;
+
+	struct stat st;
+	if (fstat(conn, &st) < 0)
+		fatal("stat(stdin): %m");
+
+	if ((st.st_mode & S_IFMT) != S_IFSOCK)
+		fatal("stdin is not a socket");
 
 	set_recv_timeout(conn, 3);
 
