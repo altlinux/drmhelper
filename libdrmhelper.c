@@ -13,8 +13,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "logging.h"
-#include "communication.h"
+#include "common.h"
 
 #include "libdrmhelper.h"
 

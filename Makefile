@@ -41,10 +41,8 @@ LDLIBS =
 
 TARGETS = drmhelper $(SHAREDLIB) $(STATICLIB) libdrmhelper.pc
 
-SRCS = communication.c logging.c
-
-drmhelper_SRCS    = drmhelper.c $(SRCS)
-libdrmhelper_SRCS = libdrmhelper.c $(SRCS)
+drmhelper_SRCS    = drmhelper.c ipc.c
+libdrmhelper_SRCS = libdrmhelper.c ipc.c
 
 drmhelper_OBJS    = $(drmhelper_SRCS:.c=.o)
 libdrmhelper_OBJS = $(libdrmhelper_SRCS:.c=.o)

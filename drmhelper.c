@@ -17,8 +17,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "logging.h"
-#include "communication.h"
+#include "common.h"
 
 #ifndef DRM_MAJOR
 #define DRM_MAJOR 226

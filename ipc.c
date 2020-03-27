@@ -11,8 +11,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "logging.h"
-#include "communication.h"
+#include "common.h"
 
 int
 set_recv_timeout(int fd, int secs)
@@ -26,7 +25,7 @@ set_recv_timeout(int fd, int secs)
 	return 0;
 }
 
-	ssize_t
+ssize_t
 sendmsg_retry(int sockfd, const struct msghdr *msg, int flags)
 {
 	return TEMP_FAILURE_RETRY(sendmsg(sockfd, msg, flags));

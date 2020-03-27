@@ -26,12 +26,6 @@ struct cmd {
 ssize_t sendmsg_retry(int sockfd, const struct msghdr *msg, int flags) __attribute__((nonnull(2)));
 ssize_t recvmsg_retry(int sockfd, struct msghdr *msg, int flags) __attribute__((nonnull(2)));
 
-// #include <unistd.h>
-//
-// int srv_listen(const char *, const char *)  __attribute__((nonnull(1, 2)));
-// int srv_connect(const char *, const char *) __attribute__((nonnull(1, 2)));
-//
-// int get_peercred(int, pid_t *, uid_t *, gid_t *);
 int set_recv_timeout(int fd, int secs);
 
 int fds_send(int conn, int *fds, size_t fds_len);
@@ -39,5 +33,20 @@ int fds_recv(int conn, int *fds, size_t n_fds);
 
 int xsendmsg(int conn, void *data, size_t len) __attribute__((nonnull(2)));
 int xrecvmsg(int conn, void *data, size_t len) __attribute__((nonnull(2)));
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#define err(format, arg...) \
+	do { \
+		fprintf(stderr, "%s(%d): " format, __FILE__, __LINE__, ##arg); \
+		fprintf(stderr, "\n"); \
+	} while(0)
+
+#define fatal(format, arg...) \
+	do { \
+		err(format, ##arg); \
+		exit(EXIT_FAILURE); \
+	} while (0)
 
 #endif
