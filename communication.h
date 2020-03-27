@@ -15,19 +15,9 @@ typedef enum {
 	CMD_DRM_DROP_MASTER,
 } cmd_t;
 
-typedef enum {
-	CMD_STATUS_DONE = 0,
-	CMD_STATUS_FAILED,
-} cmd_status_t;
-
 struct cmd {
 	cmd_t  type;
 	size_t datalen;
-};
-
-struct cmd_resp {
-	cmd_status_t status;
-	size_t msglen;
 };
 
 #include <sys/types.h>

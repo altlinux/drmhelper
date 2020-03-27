@@ -45,12 +45,11 @@ static int drm_drop_master(int fd)
 	return _ioctl(fd, DRM_IOCTL_DROP_MASTER, NULL);
 }
 
-static void command_open(struct cmd *hdr)
+static int command_open(struct cmd *hdr)
 {
 	int ret = -1;
 	int fd = -1;
 	char path[PATH_MAX] = "";
-	cmd_status_t status = CMD_STATUS_FAILED;
 
 	if (hdr->datalen >= sizeof(path))
 		goto end;
@@ -92,70 +91,74 @@ static void command_open(struct cmd *hdr)
 	}
 
 	ret = fd;
-	status = CMD_STATUS_DONE;
 end:
 	fds_send(conn, &ret, 1);
 
-	if (fd >= 0)
-		close(fd);
-
-	xsendmsg(conn, &status, sizeof(status));
+	return ( ret < 0 ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
-static void command_set_master(struct cmd *hdr)
+static int command_set_master(struct cmd *hdr)
 {
 	int fd = -1;
-	cmd_status_t status = CMD_STATUS_FAILED;
+	int ret = -1;
 
-	if (hdr->datalen != sizeof(int))
+	if (hdr->datalen != sizeof(int)) {
+		ret = -EINVAL;
 		goto end;
+	}
 
 	if (fds_recv(conn, &fd, 1) < 0)
 		goto end;
 
 	if (setuid(0) < 0) {
+		ret = -errno;
 		err("setuid: %m");
 		goto end;
 	}
 
 	if (drm_set_master(fd) < 0) {
+		ret = -errno;
 		err("ioctl(DRM_IOCTL_SET_MASTER): %m");
 		goto end;
 	}
 
-	status = CMD_STATUS_DONE;
+	ret = 0;
 end:
-	if (fd >= 0)
-		close(fd);
-	xsendmsg(conn, &status, sizeof(status));
+	xsendmsg(conn, &ret, sizeof(ret));
+
+	return ( ret < 0 ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
-static void command_drop_master(struct cmd *hdr)
+static int command_drop_master(struct cmd *hdr)
 {
 	int fd = -1;
-	cmd_status_t status = CMD_STATUS_FAILED;
+	int ret = -1;
 
-	if (hdr->datalen != sizeof(int))
+	if (hdr->datalen != sizeof(int)) {
+		ret = -EINVAL;
 		goto end;
+	}
 
 	if (fds_recv(conn, &fd, 1) < 0)
 		goto end;
 
 	if (setuid(0) < 0) {
+		ret = -errno;
 		err("setuid: %m");
 		goto end;
 	}
 
 	if (drm_drop_master(fd) < 0) {
+		ret = -errno;
 		err("ioctl(DRM_IOCTL_DROP_MASTER): %m");
 		goto end;
 	}
 
-	status = CMD_STATUS_DONE;
+	ret = 0;
 end:
-	if (fd >= 0)
-		close(fd);
-	xsendmsg(conn, &status, sizeof(status));
+	xsendmsg(conn, &ret, sizeof(ret));
+
+	return ( ret < 0 ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 int main(void)
@@ -171,29 +174,27 @@ int main(void)
 
 	set_recv_timeout(conn, 3);
 
-	cmd_status_t status = CMD_STATUS_FAILED;
+	int ret = -1;
 	struct cmd hdr = { 0 };
 
-	if (xrecvmsg(conn, &hdr, sizeof(hdr)) < 0) {
-		xsendmsg(conn, &status, sizeof(status));
-		return EXIT_FAILURE;
-	}
+	if (xrecvmsg(conn, &hdr, sizeof(hdr)) < 0)
+		goto error;
 
 	switch (hdr.type) {
 		case CMD_DRM_OPEN:
-			command_open(&hdr);
-			break;
+			return command_open(&hdr);
+
 		case CMD_DRM_SET_MASTER:
-			command_set_master(&hdr);
-			break;
+			return command_set_master(&hdr);
+
 		case CMD_DRM_DROP_MASTER:
-			command_drop_master(&hdr);
-			break;
+			return command_drop_master(&hdr);
 		default:
-			err("unknown command: %d", hdr.type);
-			xsendmsg(conn, &status, sizeof(status));
-			return EXIT_FAILURE;
+			break;
 	}
 
-	return EXIT_SUCCESS;
+	err("unknown command: %d", hdr.type);
+error:
+	xsendmsg(conn, &ret, sizeof(ret));
+	return EXIT_FAILURE;
 }

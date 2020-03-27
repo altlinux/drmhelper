@@ -119,12 +119,7 @@ static int set_master(int drmfd, cmd_t cmd)
 	if (fds_send(conn, &drmfd, 1) < 0)
 		goto end;
 
-	cmd_status_t status;
-
-	if (xrecvmsg(conn, &status, sizeof(status)) < 0)
-		goto end;
-
-	ret = (status == CMD_STATUS_FAILED) ? -1 : 0;
+	xrecvmsg(conn, &ret, sizeof(ret));
 end:
 	if (conn >= 0)
 		close(conn);
