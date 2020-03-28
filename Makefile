@@ -41,8 +41,15 @@ LDLIBS =
 
 TARGETS = drmhelper $(SHAREDLIB) $(STATICLIB) libdrmhelper.pc
 
+all: $(TARGETS)
+
 drmhelper_SRCS    = drmhelper.c ipc.c
 libdrmhelper_SRCS = libdrmhelper.c ipc.c
+
+ifneq "$(WITHOUT_SECCOMP)" "1"
+CPPFLAGS       += -DUSE_SECCOMP
+drmhelper_SRCS += seccomp.c
+endif
 
 drmhelper_OBJS    = $(drmhelper_SRCS:.c=.o)
 libdrmhelper_OBJS = $(libdrmhelper_SRCS:.c=.o)
@@ -54,8 +61,6 @@ DEPS = \
 OBJS = \
 	$(drmhelper_OBJS) \
 	$(libdrmhelper_OBJS)
-
-all: $(TARGETS)
 
 install: $(TARGETS)
 	$(INSTALL) -D -p -m2711 drmhelper $(DESTDIR)$(helperdir)/drmhelper

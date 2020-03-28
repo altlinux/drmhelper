@@ -181,6 +181,11 @@ end:
 
 int main(void)
 {
+#ifdef USE_SECCOMP
+	if (seccomp_filter())
+		return EXIT_FAILURE;
+#endif // USE_SECCOMP
+
 	conn = STDIN_FILENO;
 
 	struct stat st;

@@ -49,4 +49,8 @@ int xrecvmsg(int conn, void *data, size_t len) __attribute__((nonnull(2)));
 		exit(EXIT_FAILURE); \
 	} while (0)
 
+#ifdef USE_SECCOMP
+int seccomp_filter(void);
+#endif
+
 #endif
