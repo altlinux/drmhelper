@@ -66,7 +66,9 @@ static struct sock_filter filter[] = {
 	ALLOW_SYSCALL(write),
 	ALLOW_SYSCALL(openat),
 	ALLOW_SYSCALL(fstat),
+#ifdef __NR_lstat // __aarch64__
 	ALLOW_SYSCALL(lstat),
+#endif
 	ALLOW_SYSCALL(setuid),
 	ALLOW_SYSCALL(setsockopt),
 	ALLOW_SYSCALL(sendmsg),
