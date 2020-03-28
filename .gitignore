@@ -2,3 +2,4 @@ drmhelper
 *.[ado]
 *.os
 *.so
+*.pc
