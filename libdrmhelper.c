@@ -56,6 +56,8 @@ static int execute_helper(void)
 		do_child(sv[1]);
 	}
 
+	set_recv_timeout(sv[0], 3);
+
 	close(sv[1]);
 	return sv[0];
 }
