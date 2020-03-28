@@ -8,8 +8,6 @@ Group: System/Libraries
 
 Source: %name-%version.tar
 
-BuildRequires: libseccomp-devel
-
 %description
 %summary.
 

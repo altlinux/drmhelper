@@ -6,10 +6,10 @@
 #include <linux/filter.h>
 #include <linux/seccomp.h>
 
+#include <sys/syscall.h>
 #include <sys/prctl.h>
 
 #include <stddef.h>
-#include <seccomp.h>
 #include <errno.h>
 
 #include "common.h"
