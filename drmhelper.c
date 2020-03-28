@@ -76,6 +76,12 @@ static int command_open(struct cmd *hdr)
 		goto end;
 	}
 
+	if ((st.st_mode & S_IFMT) != S_IFCHR) {
+		ret = -ENOTSUP;
+		err("unable to open not character device");
+		goto end;
+	}
+
 	uint32_t maj = major(st.st_rdev);
 
 	if (maj != INPUT_MAJOR && maj != DRM_MAJOR) {
