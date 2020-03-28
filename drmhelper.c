@@ -48,13 +48,26 @@ static int command_open(struct cmd *hdr)
 {
 	int ret = -1;
 	int fd = -1;
-	char path[PATH_MAX] = "";
+	static char path[PATH_MAX] = "";
+	static char bufp[PATH_MAX] = "";
 
-	if (hdr->datalen >= sizeof(path))
+	if (hdr->datalen >= sizeof(bufp))
 		goto end;
 
-	if (xrecvmsg(conn, &path, hdr->datalen) < 0)
+	if (xrecvmsg(conn, &bufp, hdr->datalen) < 0)
 		goto end;
+
+	if (!realpath(bufp, path)) {
+		ret = -errno;
+		err("realpath: %s: %m", bufp);
+		goto end;
+	}
+
+	if (strncmp(path, "/dev/", 5)) {
+		ret = -ENOTSUP;
+		err("unable to open file outside of /dev");
+		goto end;
+	}
 
 	if (setuid(0) < 0) {
 		ret = -errno;
