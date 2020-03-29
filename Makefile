@@ -46,11 +46,6 @@ all: $(TARGETS)
 drmhelper_SRCS    = drmhelper.c ipc.c
 libdrmhelper_SRCS = libdrmhelper.c ipc.c
 
-ifneq "$(WITHOUT_SECCOMP)" "1"
-CPPFLAGS       += -DUSE_SECCOMP
-drmhelper_SRCS += seccomp.c
-endif
-
 drmhelper_OBJS    = $(drmhelper_SRCS:.c=.o)
 libdrmhelper_OBJS = $(libdrmhelper_SRCS:.c=.o)
 
