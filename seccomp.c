@@ -57,23 +57,69 @@
 static struct sock_filter filter[] = {
 	CHECK_ARCHITECTURE,
 	LOAD_SYSCALL_NR,
+#ifdef __NR_rt_sigreturn
 	ALLOW_SYSCALL(rt_sigreturn),
+#endif
 #ifdef __NR_sigreturn
 	ALLOW_SYSCALL(sigreturn),
 #endif
+#ifdef __NR_exit_group
 	ALLOW_SYSCALL(exit_group),
+#endif
+#ifdef __NR_exit
 	ALLOW_SYSCALL(exit),
+#endif
+#ifdef __NR_write
 	ALLOW_SYSCALL(write),
+#endif
+#ifdef __NR_writev
+	ALLOW_SYSCALL(writev),
+#endif
+#ifdef __NR_open
+	ALLOW_SYSCALL(open),
+#endif
+#ifdef __NR_openat
 	ALLOW_SYSCALL(openat),
+#endif
+#ifdef __NR_fstat
 	ALLOW_SYSCALL(fstat),
-#ifdef __NR_lstat // __aarch64__
+#endif
+#ifdef __NR_fstat64
+	ALLOW_SYSCALL(fstat64),
+#endif
+#ifdef __NR_newfstatat
+	ALLOW_SYSCALL(newfstatat),
+#endif
+#ifdef __NR_fstatat64
+	ALLOW_SYSCALL(fstatat64),
+#endif
+#ifdef __NR_statx
+	ALLOW_SYSCALL(statx),
+#endif
+#ifdef __NR_lstat64
+	ALLOW_SYSCALL(lstat64),
+#endif
+#ifdef __NR_lstat
 	ALLOW_SYSCALL(lstat),
 #endif
+#ifdef __NR_setuid
 	ALLOW_SYSCALL(setuid),
+#endif
+#ifdef __NR_setuid32
+	ALLOW_SYSCALL(setuid32),
+#endif
+#ifdef __NR_setsockopt
 	ALLOW_SYSCALL(setsockopt),
+#endif
+#ifdef __NR_sendmsg
 	ALLOW_SYSCALL(sendmsg),
+#endif
+#ifdef __NR_revvmsg
 	ALLOW_SYSCALL(recvmsg),
+#endif
+#ifdef __NR_ioctl
 	ALLOW_SYSCALL(ioctl),
+#endif
 	KILL_PROCESS,
 };
 
