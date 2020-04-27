@@ -35,7 +35,7 @@ static void do_child(int conn)
 	fatal("libdrmhelper: execv: %s: %m", drmhelper_pathname);
 }
 
-static int execute_helper(void)
+static int execute_helper(pid_t *pid, int *sock)
 {
 	int sv[2];
 
@@ -59,7 +59,11 @@ static int execute_helper(void)
 	set_recv_timeout(sv[0], 3);
 
 	close(sv[1]);
-	return sv[0];
+
+	*pid = child;
+	*sock = sv[0];
+
+	return 0;
 }
 
 int drmhelper_have_permissions(void)
@@ -71,8 +75,22 @@ int drmhelper_open(const char *path)
 {
 	int ret = -1;
 	int conn = -1;
+	pid_t helper = -1;
 
-	if ((conn = execute_helper()) < 0)
+	int status;
+	struct sigaction saved_action, action;
+
+	action.sa_handler = SIG_DFL;
+	action.sa_flags = SA_RESTART;
+
+	sigemptyset(&action.sa_mask);
+
+	if (sigaction(SIGCHLD, &action, &saved_action) < 0) {
+		err("libdrmhelper: sigaction: %m");
+		return -1;
+	}
+
+	if (execute_helper(&helper, &conn) < 0)
 		goto end;
 
 	size_t len = strlen(path) + 1;
@@ -98,6 +116,11 @@ end:
 	if (conn >= 0)
 		close(conn);
 
+	if (helper > 0 && TEMP_FAILURE_RETRY(waitpid(helper, &status, 0)) < 0)
+		err("libdrmhelper: waitpid: %m");
+
+	(void) sigaction(SIGCHLD, &saved_action, 0);
+
 	return ret;
 }
 
@@ -105,8 +128,22 @@ static int set_master(int drmfd, cmd_t cmd)
 {
 	int ret = -1;
 	int conn = -1;
+	pid_t helper = -1;
 
-	if ((conn = execute_helper()) < 0)
+	int status;
+	struct sigaction saved_action, action;
+
+	action.sa_handler = SIG_DFL;
+	action.sa_flags = SA_RESTART;
+
+	sigemptyset(&action.sa_mask);
+
+	if (sigaction(SIGCHLD, &action, &saved_action) < 0) {
+		err("libdrmhelper: sigaction: %m");
+		return -1;
+	}
+
+	if (execute_helper(&helper, &conn) < 0)
 		goto end;
 
 	struct cmd hdr = {
@@ -124,6 +161,11 @@ static int set_master(int drmfd, cmd_t cmd)
 end:
 	if (conn >= 0)
 		close(conn);
+
+	if (helper > 0 && TEMP_FAILURE_RETRY(waitpid(helper, &status, 0)) < 0)
+		err("libdrmhelper: waitpid: %m");
+
+	(void) sigaction(SIGCHLD, &saved_action, 0);
 
 	return ret;
 }
